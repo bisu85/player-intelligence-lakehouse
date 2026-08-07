@@ -19,4 +19,10 @@ con.execute("""
     (FORMAT parquet, COMPRESSION zstd, ROW_GROUP_SIZE 10_000);
 """)
 
+# Deliberately pathological: one file per player (~5,000 files of ~20 rows)
+con.execute("""
+    COPY events TO 's3://lakehouse/raw/events_fragmented'
+    (FORMAT parquet, COMPRESSION zstd, PARTITION_BY (player_id), OVERWRITE_OR_IGNORE);
+""")
+
 print(con.sql("SELECT count(*) FROM 's3://lakehouse/raw/events_sorted.parquet'"))
