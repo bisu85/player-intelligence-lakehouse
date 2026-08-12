@@ -19,3 +19,45 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  catalog-db:
+    image: postgres:16
+    container_name: lakehouse-catalog-db
+    environment:
+      POSTGRES_USER: lakekeeper
+      POSTGRES_PASSWORD: lakekeeper
+      POSTGRES_DB: lakekeeper
+    volumes:
+      - catalog_db_data:/var/lib/postgresql/data
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lakekeeper"]
+      interval: 5s
+      retries: 10
+
+  lakekeeper-migrate:
+    image: quay.io/lakekeeper/catalog:v0.12.0
+    command: ["migrate"]
+    environment: &lakekeeper_env
+      LAKEKEEPER__PG_ENCRYPTION_KEY: local-dev-only-not-a-real-key
+      LAKEKEEPER__PG_DATABASE_URL_READ: postgres://lakekeeper:lakekeeper@catalog-db:5432/lakekeeper
+      LAKEKEEPER__PG_DATABASE_URL_WRITE: postgres://lakekeeper:lakekeeper@catalog-db:5432/lakekeeper
+      LAKEKEEPER__BASE_URI: http://localhost:8181
+    depends_on:
+      catalog-db:
+        condition: service_healthy
+
+  lakekeeper:
+    image: quay.io/lakekeeper/catalog:v0.12.0
+    container_name: lakehouse-catalog
+    command: ["serve"]
+    environment: *lakekeeper_env
+    ports:
+      - "8181:8181"
+    mem_limit: 512m
+    depends_on:
+      lakekeeper-migrate:
+        condition: service_completed_successfully
+
+volumes:
+  catalog_db_data:
