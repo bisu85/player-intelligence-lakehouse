@@ -25,7 +25,7 @@ def get_rest_catalog() -> RestCatalog:
     return RestCatalog(
         "lakekeeper",
         **{
-            "uri": "http://localhost:8181/catalog",
+            "uri": "http://lakekeeper:8181/catalog",
             "warehouse": "lakehouse",
         },
     )

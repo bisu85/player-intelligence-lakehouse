@@ -21,7 +21,7 @@ def get_spark(app_name: str = "lakehouse") -> SparkSession:
         # register a catalog named "lk"
         .config("spark.sql.catalog.lk", "org.apache.iceberg.spark.SparkCatalog")
         .config("spark.sql.catalog.lk.type", "rest")
-        .config("spark.sql.catalog.lk.uri", "http://localhost:8181/catalog")
+        .config("spark.sql.catalog.lk.uri", "http://lakekeeper:8181/catalog")
         .config("spark.sql.catalog.lk.warehouse", "lakehouse")
         .config("spark.sql.catalog.lk.io-impl", "org.apache.iceberg.aws.s3.S3FileIO")
         .config("spark.sql.catalog.lk.s3.endpoint", "http://localhost:9000")

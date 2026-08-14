@@ -42,7 +42,7 @@ services:
       LAKEKEEPER__PG_ENCRYPTION_KEY: local-dev-only-not-a-real-key
       LAKEKEEPER__PG_DATABASE_URL_READ: postgres://lakekeeper:lakekeeper@catalog-db:5432/lakekeeper
       LAKEKEEPER__PG_DATABASE_URL_WRITE: postgres://lakekeeper:lakekeeper@catalog-db:5432/lakekeeper
-      LAKEKEEPER__BASE_URI: http://localhost:8181
+      LAKEKEEPER__BASE_URI: http://lakekeeper:8181
     depends_on:
       catalog-db:
         condition: service_healthy
@@ -58,6 +58,23 @@ services:
     depends_on:
       lakekeeper-migrate:
         condition: service_completed_successfully
+
+  trino:
+    image: trinodb/trino:483
+    container_name: lakehouse-trino
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./trino/catalog:/etc/trino/catalog:ro
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      STAGE2_PG_USER: ${STAGE2_PG_USER}
+      STAGE2_PG_PASSWORD: ${STAGE2_PG_PASSWORD}
+      STAGE2_PG_DB: ${STAGE2_PG_DB}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    mem_limit: 4g
 
 volumes:
   catalog_db_data:
