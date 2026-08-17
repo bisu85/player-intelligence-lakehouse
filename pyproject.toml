@@ -10,6 +10,7 @@ dependencies = [
     "pyiceberg[pyiceberg-core,s3fs,sql-postgres]==0.11.1",
     "pyspark==4.0.1",
     "python-dotenv>=1.2.2",
+    "trino>=0.338.0",
 ]
 
 [build-system]
